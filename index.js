@@ -142,7 +142,7 @@ function takeScreenshot(argv) {
 
     if (argv.delay) await delay(argv.delay);
 
-	if (argv.format == "pdf") {
+	if (argv.format === "pdf") {
 		page.emulateMediaType('screen');
 		let height = await page.evaluate(() => document.documentElement.offsetHeight);
 		await page.pdf({
