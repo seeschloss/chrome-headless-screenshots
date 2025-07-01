@@ -74,6 +74,13 @@ let argv = yargs(process.argv.slice(2))
         demandOption: false,
         default: 'png',
       })
+      .option('browser', {
+        description: 'Browser to use',
+        type: 'string',
+        choices: ['chrome', 'firefox'],
+        demandOption: false,
+        default: 'chrome',
+      })
       .positional('url', {
         description: 'Url of the webpage you want to take a screenshot of',
         type: 'string',
@@ -104,6 +111,7 @@ function takeScreenshot(argv) {
       },
       bindAddress: '0.0.0.0',
       headless: 'new',
+      browser: argv.browser,
       args: [
         '--no-sandbox',
         '--headless',
@@ -142,23 +150,23 @@ function takeScreenshot(argv) {
 
     if (argv.delay) await delay(argv.delay);
 
-	if (argv.format == "pdf") {
-		page.emulateMediaType('screen');
-		let height = await page.evaluate(() => document.documentElement.offsetHeight);
-		await page.pdf({
-		  path: path
-			.join(argv.outputDir, argv.filename + '.' + argv.format)
-			.toString(),
-		  height: height,
-		});
-	} else {
-		await page.screenshot({
-		  path: path
-			.join(argv.outputDir, argv.filename + '.' + argv.format)
-			.toString(),
-		  type: argv.format,
-		});
-	}
+    if (argv.format == "pdf" && argv.browser != "firefox") {
+      page.emulateMediaType('screen');
+      let height = await page.evaluate(() => document.documentElement.offsetHeight);
+      await page.pdf({
+        path: path
+          .join(argv.outputDir, argv.filename + '.' + argv.format)
+          .toString(),
+        height: height,
+      });
+    } else {
+      await page.screenshot({
+        path: path
+          .join(argv.outputDir, argv.filename + '.' + argv.format)
+          .toString(),
+        type: argv.format,
+      });
+    }
 
     await browser.close();
   })();
